@@ -1,0 +1,41 @@
+[{
+	"kode_customer": 1,
+	"nama_customer": "Logam Jaya, UD",
+	"alamat_customer": "Rajawali No 95",
+	"kodepos": 60176,
+	"kode_provinsi": 11,
+	"region": [{
+		"gps_lat": -7.233834999999999,
+		"gps_long": 112.72964666666667
+	}]
+}, {
+	"kode_customer": 2,
+	"nama_customer": "Terang, TK",
+	"alamat_customer": "Raya Dukuh Kupang 100",
+	"kodepos": 60225,
+	"kode_provinsi": 11,
+	"region": [{
+		"gps_lat": -7.285430000000001,
+		"gps_long": 112.71538333333335
+	}]
+}, {
+	"kode_customer": 3,
+	"nama_customer": "Sinar Family",
+	"alamat_customer": "By Pass Jomin No 295",
+	"kodepos": 41374,
+	"kode_provinsi": 9,
+	"region": [{
+		"gps_lat": -6.4220273,
+		"gps_long": 107.4748978
+	}]
+}, {
+	"kode_customer": 4,
+	"nama_customer": "Lancar Laksana, TB",
+	"alamat_customer": "Jendral Sudirman No 69",
+	"kodepos": 41374,
+	"kode_provinsi": 9,
+	"region": [{
+		"gps_lat": -6.4220273,
+		"gps_long": 107.4748978
+	}]
+}]
