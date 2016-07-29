@@ -19,6 +19,8 @@ class LocationSearchTable: UITableViewController {
                 "Jacksonville, FL", "San Francisco, CA", "Columbus, OH", "Austin, TX",
                 "Memphis, TN", "Baltimore, MD", "Charlotte, ND", "Fort Worth, TX"]
     
+    let data2 = ["Logam Jaya, UD", "Terang, TK", "Sinar Family", "Lancar Laksana, TB"]
+    
     var filteredData: [String]!
     
     func getCustData() {
@@ -29,7 +31,7 @@ class LocationSearchTable: UITableViewController {
         self.custData = json
         //self.collectionView.reloadData()
         
-        print("JSON: \(json)")
+        //print("JSON: \(json)")
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -44,13 +46,19 @@ class LocationSearchTable: UITableViewController {
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         print(filteredData[indexPath.row])
+        
+        for var i=0; i < custData.count; ++i {
+            if (filteredData[indexPath.row] == custData[i]["nama_customer"].stringValue) {
+                print(custData[i]["alamat_customer"])
+            }
+        }
     }
 }
 
 extension LocationSearchTable: UISearchResultsUpdating {
     func updateSearchResultsForSearchController(searchController: UISearchController) {
         if let searchText = searchController.searchBar.text {
-            filteredData = searchText.isEmpty ? data : data.filter({(dataString: String) -> Bool in
+            filteredData = searchText.isEmpty ? data2 : data2.filter({(dataString: String) -> Bool in
                 return dataString.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil
             })
             
@@ -59,6 +67,32 @@ extension LocationSearchTable: UISearchResultsUpdating {
     }
 }
 /*
+extension LocationSearchTable: UISearchResultsUpdating {
+    func updateSearchResultsForSearchController(searchController: UISearchController) {
+        if let searchText = searchController.searchBar.text {
+            let searchPredicate = NSPredicate(format: "nama_customer contains[cd] %@", searchText)
+            if let array = custData.arrayObject as? [[String:String]] {
+                let filterArr = JSON(array.filter{ searchPredicate.evaluateWithObject($0) })
+                filteredData = filterArr.map({ String($0["nama_customer"])})
+                tableView.reloadData()
+            }
+        }
+    }
+}*/
+/*
+ 
+ extension LocationSearchTable: UISearchResultsUpdating {
+ func updateSearchResultsForSearchController(searchController: UISearchController) {
+ if let searchText = searchController.searchBar.text {
+ filteredData = searchText.isEmpty ? data : data.filter({(dataString: String) -> Bool in
+ return dataString.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil
+ })
+ 
+ tableView.reloadData()
+ }
+ }
+ }
+ 
 extension LocationSearchTable {
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return data.count
