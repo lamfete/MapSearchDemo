@@ -8,6 +8,7 @@
 
 import UIKit
 import SwiftyJSON
+import MapKit
 
 class LocationSearchTable: UITableViewController {
     
@@ -22,6 +23,12 @@ class LocationSearchTable: UITableViewController {
     let data2 = ["Logam Jaya, UD", "Terang, TK", "Sinar Family", "Lancar Laksana, TB"]
     
     var filteredData: [String]!
+    var namaToko: String = ""
+    var alamatToko: String = ""
+    var longToko: Double = 0.0
+    var latToko: Double = 0.0
+    
+    var handleMapSearchDelegate: HandleMapSearch? = nil
     
     func getCustData() {
         let path = NSBundle.mainBundle().pathForResource("cust_toko", ofType: "json")
@@ -41,6 +48,7 @@ class LocationSearchTable: UITableViewController {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell")!
         cell.textLabel?.text = filteredData[indexPath.row]
+        cell.detailTextLabel?.text = ""
         return cell
     }
     
@@ -49,7 +57,21 @@ class LocationSearchTable: UITableViewController {
         
         for var i=0; i < custData.count; ++i {
             if (filteredData[indexPath.row] == custData[i]["nama_customer"].stringValue) {
-                print(custData[i]["alamat_customer"])
+                print(custData[i]["alamat_customer"].stringValue)
+                print(custData[i]["gps_long"].doubleValue)
+                print(custData[i]["gps_lat"].doubleValue)
+                
+                namaToko = custData[i]["nama_customer"].stringValue
+                alamatToko = custData[i]["alamat_customer"].stringValue
+                longToko = custData[i]["gps_long"].doubleValue
+                latToko = custData[i]["gps_lat"].doubleValue
+                
+                let toko = Toko(title: namaToko,
+                                locationName: alamatToko,
+                                coordinate: CLLocationCoordinate2D(latitude: latToko, longitude: longToko))
+                
+                handleMapSearchDelegate?.dropPinZoomIn(toko)
+                dismissViewControllerAnimated(true, completion: nil)
             }
         }
     }

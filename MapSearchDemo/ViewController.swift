@@ -9,11 +9,16 @@
 import UIKit
 import MapKit
 
+protocol HandleMapSearch {
+    func dropPinZoomIn(toko: Toko)
+}
+
 class ViewController: UIViewController {
     
     @IBOutlet weak var mapView: MKMapView!
     
     var searchController: UISearchController!
+    var selectedPin: MKPlacemark? = nil
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,7 +45,10 @@ class ViewController: UIViewController {
         searchController?.dimsBackgroundDuringPresentation = false
         
         definesPresentationContext = true
+        
+        locationSearchTable.handleMapSearchDelegate = self
     }
+
     /*
     func updateSearchResultsForSearchController(searchController: UISearchController) {
         if let searchText = searchController.searchBar.text {
@@ -56,7 +64,36 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-
 }
 
+extension ViewController: HandleMapSearch {
+    func dropPinZoomIn(toko: Toko) {
+    //func dropPinZoomIn(longtitute: String, lattitude: String) {
+        //cahce the pin
+        //selectedPin = placemark
+        
+        //clear existing pins
+        mapView.removeAnnotations(mapView.annotations)
+        /*
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = placemark.coordinate
+        annotation.title = placemark.name
+        
+        if let city = placemark.locality,
+            let state = placemark.administrativeArea {
+            annotation.subtitle = "(city) (state)"
+        }*/
+        
+        //let locationSearchTable = storyboard!.instantiateViewControllerWithIdentifier("LocationSearchTable") as! LocationSearchTable
+        //let locationSearchTable = UIApplication.sharedApplication().windows[0].rootViewController?.childViewControllers[1] as? LocationSearchTable
+        //let locationSearchTable = LocationSearchTable(nibName: "LocationSearchTable", bundle: nil)
+
+        //let toko = Toko(title: locationSearchTable.namaToko, locationName: locationSearchTable.alamatToko,coordinate: CLLocationCoordinate2D(latitude: locationSearchTable.latToko, longitude: locationSearchTable.longToko))
+        //print("NAMA TOKO: \(locationSearchTable.namaToko)")
+        mapView.addAnnotation(toko)
+        let span = MKCoordinateSpanMake(0.05, 0.05)
+        let region = MKCoordinateRegionMake(toko.coordinate, span)
+    
+        mapView.setRegion(region, animated: true)
+    }
+}

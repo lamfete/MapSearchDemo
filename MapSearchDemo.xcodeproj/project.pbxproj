@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04695A611D52FFCB006B99C0 /* Toko.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04695A601D52FFCA006B99C0 /* Toko.swift */; };
 		046ED18C1D471A63008F4D80 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046ED18B1D471A63008F4D80 /* AppDelegate.swift */; };
 		046ED18E1D471A63008F4D80 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046ED18D1D471A63008F4D80 /* ViewController.swift */; };
 		046ED1911D471A63008F4D80 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 046ED18F1D471A63008F4D80 /* Main.storyboard */; };
@@ -34,6 +35,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		04695A601D52FFCA006B99C0 /* Toko.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Toko.swift; sourceTree = "<group>"; };
 		046ED1881D471A63008F4D80 /* MapSearchDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapSearchDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		046ED18B1D471A63008F4D80 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		046ED18D1D471A63008F4D80 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -82,11 +84,12 @@
 				046ED19D1D471BA5008F4D80 /* SwiftyJSON.framework */,
 				046ED18B1D471A63008F4D80 /* AppDelegate.swift */,
 				046ED18D1D471A63008F4D80 /* ViewController.swift */,
+				04695A601D52FFCA006B99C0 /* Toko.swift */,
+				046ED1A21D47266F008F4D80 /* LocationSearchTable.swift */,
 				046ED18F1D471A63008F4D80 /* Main.storyboard */,
 				046ED1921D471A63008F4D80 /* Assets.xcassets */,
 				046ED1941D471A63008F4D80 /* LaunchScreen.storyboard */,
 				046ED1971D471A63008F4D80 /* Info.plist */,
-				046ED1A21D47266F008F4D80 /* LocationSearchTable.swift */,
 			);
 			path = MapSearchDemo;
 			sourceTree = "<group>";
@@ -167,6 +170,7 @@
 			files = (
 				046ED1A31D47266F008F4D80 /* LocationSearchTable.swift in Sources */,
 				046ED18E1D471A63008F4D80 /* ViewController.swift in Sources */,
+				04695A611D52FFCB006B99C0 /* Toko.swift in Sources */,
 				046ED18C1D471A63008F4D80 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -327,6 +331,7 @@
 				046ED19C1D471A63008F4D80 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
