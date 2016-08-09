@@ -22,9 +22,20 @@ class LocationSearchTable: UITableViewController {
     
     let data2 = ["Logam Jaya, UD", "Terang, TK", "Sinar Family", "Lancar Laksana, TB"]
     
-    var filteredData: [String]!
+    var filteredData: [String]! //nama_customer
+    var filteredData2: [String]! //alamat_customer
+    var filteredData3: [String]! //kota
+    var filteredData4: [String]! //kota
+    
+    var namaTokoArr: [String] = []
+    var alamatTokoArr: [String] = []
+    var kotaTokoArr: [String] = []
+    var provinsiTokoArr: [String] = []
+    
     var namaToko: String = ""
     var alamatToko: String = ""
+    var kotaToko: String = ""
+    var provinsiToko: String = ""
     var longToko: Double = 0.0
     var latToko: Double = 0.0
     
@@ -39,6 +50,24 @@ class LocationSearchTable: UITableViewController {
         //self.collectionView.reloadData()
         
         //print("JSON: \(json)")
+        pindahData()
+    }
+    
+    func pindahData() {
+        for(_, subJson):(String, JSON) in self.custData {
+            if let name: String = subJson["nama_customer"].stringValue {
+                if let address: String = subJson["alamat_customer"].stringValue {
+                    if let city: String = subJson["kota"].stringValue {
+                        if let province: String = subJson["provinsi"].stringValue {
+                            namaTokoArr.append(name)
+                            alamatTokoArr.append(address)
+                            kotaTokoArr.append(city)
+                            provinsiTokoArr.append(province)
+                        }
+                    }
+                }
+            }
+        }
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -47,8 +76,8 @@ class LocationSearchTable: UITableViewController {
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell")!
-        cell.textLabel?.text = filteredData[indexPath.row]
-        cell.detailTextLabel?.text = ""
+        cell.textLabel!.text = String(namaTokoArr[indexPath.row])
+        cell.detailTextLabel!.text = String(alamatTokoArr[indexPath.row]) + ", " + String(kotaTokoArr[indexPath.row]) + ", " + String(provinsiTokoArr[indexPath.row])
         return cell
     }
     
@@ -56,18 +85,22 @@ class LocationSearchTable: UITableViewController {
         print(filteredData[indexPath.row])
         
         for var i=0; i < custData.count; ++i {
-            if (filteredData[indexPath.row] == custData[i]["nama_customer"].stringValue) {
-                print(custData[i]["alamat_customer"].stringValue)
-                print(custData[i]["gps_long"].doubleValue)
-                print(custData[i]["gps_lat"].doubleValue)
+            if (String(filteredData[indexPath.row]) == custData[i]["nama_customer"].stringValue) {
+                //print(custData[i]["alamat_customer"].stringValue)
+                //print(custData[i]["gps_long"].doubleValue)
+                //print(custData[i]["gps_lat"].doubleValue)
                 
                 namaToko = custData[i]["nama_customer"].stringValue
                 alamatToko = custData[i]["alamat_customer"].stringValue
+                kotaToko = custData[i]["kota"].stringValue
+                provinsiToko = custData[i]["provinsi"].stringValue
                 longToko = custData[i]["gps_long"].doubleValue
                 latToko = custData[i]["gps_lat"].doubleValue
                 
                 let toko = Toko(title: namaToko,
                                 locationName: alamatToko,
+                                cityName: kotaToko,
+                                provinsiName: provinsiToko,
                                 coordinate: CLLocationCoordinate2D(latitude: latToko, longitude: longToko))
                 
                 handleMapSearchDelegate?.dropPinZoomIn(toko)
@@ -75,6 +108,8 @@ class LocationSearchTable: UITableViewController {
             }
         }
     }
+    
+    //func parseAddress(selectedItem)
 }
 
 extension LocationSearchTable: UISearchResultsUpdating {
@@ -83,7 +118,6 @@ extension LocationSearchTable: UISearchResultsUpdating {
             filteredData = searchText.isEmpty ? data2 : data2.filter({(dataString: String) -> Bool in
                 return dataString.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil
             })
-            
             tableView.reloadData()
         }
     }
@@ -93,36 +127,15 @@ extension LocationSearchTable: UISearchResultsUpdating {
     func updateSearchResultsForSearchController(searchController: UISearchController) {
         if let searchText = searchController.searchBar.text {
             let searchPredicate = NSPredicate(format: "nama_customer contains[cd] %@", searchText)
-            if let array = custData.arrayObject as? [[String:String]] {
-                let filterArr = JSON(array.filter{ searchPredicate.evaluateWithObject($0) })
-                filteredData = filterArr.map({ String($0["nama_customer"])})
+            if let array = custData.arrayObject as? [[String:AnyObject]!] {
+                let filterArr = array.filter{ searchPredicate.evaluateWithObject($0) }
+                filteredData = filterArr.map({ String($0["nama_customer"]) })
+                filteredData2 = filterArr.map({ String($0["alamat_customer"]) })
+                filteredData3 = filterArr.map({ String($0["kota"]) })
+                filteredData4 = filterArr.map({ String($0["provinsi"]) })
                 tableView.reloadData()
+                print(filterArr)
             }
         }
-    }
-}*/
-/*
- 
- extension LocationSearchTable: UISearchResultsUpdating {
- func updateSearchResultsForSearchController(searchController: UISearchController) {
- if let searchText = searchController.searchBar.text {
- filteredData = searchText.isEmpty ? data : data.filter({(dataString: String) -> Bool in
- return dataString.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil
- })
- 
- tableView.reloadData()
- }
- }
- }
- 
-extension LocationSearchTable {
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return data.count
-    }
-    
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("cell")!
-        cell.textLabel?.text = filteredData[indexPath.row]
-        return cell
     }
 }*/

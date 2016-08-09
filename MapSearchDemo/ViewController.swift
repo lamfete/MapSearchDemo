@@ -16,6 +16,7 @@ protocol HandleMapSearch {
 class ViewController: UIViewController {
     
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var backButton: UIBarButtonItem!
     
     var searchController: UISearchController!
     var selectedPin: MKPlacemark? = nil
@@ -38,7 +39,7 @@ class ViewController: UIViewController {
         
         let searchBar = searchController!.searchBar
         //searchBar.sizeToFit()
-        searchBar.placeholder = "Search for places"
+        searchBar.placeholder = "Find Store"
         navigationItem.titleView = searchController?.searchBar
         
         searchController?.hidesNavigationBarDuringPresentation = false
@@ -47,6 +48,22 @@ class ViewController: UIViewController {
         definesPresentationContext = true
         
         locationSearchTable.handleMapSearchDelegate = self
+        
+        //navigation
+        //navigationController?.navigationBar.barTintColor = UIColor.blackColor()
+        
+        //button
+        let backButton: UIButton = UIButton(type: .Custom)
+        backButton.setImage(UIImage(named: "ico_back_white"), forState: UIControlState.Normal)
+        backButton.addTarget(self, action: "backButtonPressed", forControlEvents: UIControlEvents.TouchUpInside)
+        backButton.frame = CGRectMake(0, 0, 20, 20)
+        
+        let barButton = UIBarButtonItem(customView: backButton)
+        self.navigationItem.leftBarButtonItem = barButton
+    }
+    
+    func backButtonPressed() {
+        print("back button pressed")
     }
 
     /*
@@ -84,10 +101,6 @@ extension ViewController: HandleMapSearch {
             annotation.subtitle = "(city) (state)"
         }*/
         
-        //let locationSearchTable = storyboard!.instantiateViewControllerWithIdentifier("LocationSearchTable") as! LocationSearchTable
-        //let locationSearchTable = UIApplication.sharedApplication().windows[0].rootViewController?.childViewControllers[1] as? LocationSearchTable
-        //let locationSearchTable = LocationSearchTable(nibName: "LocationSearchTable", bundle: nil)
-
         //let toko = Toko(title: locationSearchTable.namaToko, locationName: locationSearchTable.alamatToko,coordinate: CLLocationCoordinate2D(latitude: locationSearchTable.latToko, longitude: locationSearchTable.longToko))
         //print("NAMA TOKO: \(locationSearchTable.namaToko)")
         mapView.addAnnotation(toko)

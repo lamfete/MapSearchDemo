@@ -29,7 +29,10 @@
                             <constraint firstItem="1wd-Wu-Uep" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ib8-a1-PeI"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="eu7-eb-1gi"/>
+                    <navigationItem key="navigationItem" id="eu7-eb-1gi">
+                        <barButtonItem key="leftBarButtonItem" title="Item" id="HbO-oC-xmr"/>
+                        <barButtonItem key="rightBarButtonItem" title="Item" id="a2d-M0-WnA"/>
+                    </navigationItem>
                     <connections>
                         <outlet property="mapView" destination="1wd-Wu-Uep" id="fZ0-gw-ASA"/>
                     </connections>
