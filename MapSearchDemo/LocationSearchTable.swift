@@ -6,6 +6,7 @@
 //  Copyright © 2016 PT. Wavin Tunas Utama. All rights reserved.
 //
 
+import Foundation
 import UIKit
 import SwiftyJSON
 import MapKit
@@ -13,6 +14,7 @@ import MapKit
 class LocationSearchTable: UITableViewController {
     
     var custData: JSON = []
+    var dbTokos : [Toko] = []
     
     let data = ["New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX",
                 "Philadelphia, PA", "Phoenix, AZ", "San Diego, CA", "San Antonio, TX",
@@ -22,24 +24,10 @@ class LocationSearchTable: UITableViewController {
     
     let data2 = ["Logam Jaya, UD", "Terang, TK", "Sinar Family", "Lancar Laksana, TB"]
     
-    var filteredData: [String]! //nama_customer
-    var filteredData2: [String]! //alamat_customer
-    var filteredData3: [String]! //kota
-    var filteredData4: [String]! //kota
-    
-    var namaTokoArr: [String] = []
-    var alamatTokoArr: [String] = []
-    var kotaTokoArr: [String] = []
-    var provinsiTokoArr: [String] = []
-    
-    var namaToko: String = ""
-    var alamatToko: String = ""
-    var kotaToko: String = ""
-    var provinsiToko: String = ""
-    var longToko: Double = 0.0
-    var latToko: Double = 0.0
+    var filteredDataToko: [Toko]!
     
     var handleMapSearchDelegate: HandleMapSearch? = nil
+    var vc = ViewController()
     
     func getCustData() {
         let path = NSBundle.mainBundle().pathForResource("cust_toko", ofType: "json")
@@ -50,19 +38,29 @@ class LocationSearchTable: UITableViewController {
         //self.collectionView.reloadData()
         
         //print("JSON: \(json)")
-        pindahData()
+        splitData()
     }
     
-    func pindahData() {
+    func splitData() {
         for(_, subJson):(String, JSON) in self.custData {
             if let name: String = subJson["nama_customer"].stringValue {
                 if let address: String = subJson["alamat_customer"].stringValue {
                     if let city: String = subJson["kota"].stringValue {
                         if let province: String = subJson["provinsi"].stringValue {
-                            namaTokoArr.append(name)
-                            alamatTokoArr.append(address)
-                            kotaTokoArr.append(city)
-                            provinsiTokoArr.append(province)
+                            if let lat: Double = subJson["gps_lat"].doubleValue {
+                                if let long: Double = subJson["gps_long"].doubleValue {
+                                    /*namaTokoArr.append(name)
+                                     alamatTokoArr.append(address)
+                                     kotaTokoArr.append(city)
+                                     provinsiTokoArr.append(province)*/
+                                    let toko = Toko(title: name,
+                                                    locationName: address,
+                                                    cityName: city,
+                                                    provinsiName: province,
+                                                    coordinate: CLLocationCoordinate2D(latitude: lat, longitude: long))
+                                    dbTokos.append(toko)
+                                }
+                            }
                         }
                     }
                 }
@@ -71,54 +69,50 @@ class LocationSearchTable: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredData.count
+        return filteredDataToko.count
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell")!
-        cell.textLabel!.text = String(namaTokoArr[indexPath.row])
-        cell.detailTextLabel!.text = String(alamatTokoArr[indexPath.row]) + ", " + String(kotaTokoArr[indexPath.row]) + ", " + String(provinsiTokoArr[indexPath.row])
+        cell.textLabel!.text = String(filteredDataToko[indexPath.row].title!)
+        cell.detailTextLabel!.text = String(filteredDataToko[indexPath.row].locationName) + ", " + String(filteredDataToko[indexPath.row].cityName) + ", " + String(filteredDataToko[indexPath.row].provinsiName)
         return cell
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        print(filteredData[indexPath.row])
+        //print(filteredDataToko[indexPath.row])
         
-        for var i=0; i < custData.count; ++i {
-            if (String(filteredData[indexPath.row]) == custData[i]["nama_customer"].stringValue) {
-                //print(custData[i]["alamat_customer"].stringValue)
-                //print(custData[i]["gps_long"].doubleValue)
-                //print(custData[i]["gps_lat"].doubleValue)
-                
-                namaToko = custData[i]["nama_customer"].stringValue
-                alamatToko = custData[i]["alamat_customer"].stringValue
-                kotaToko = custData[i]["kota"].stringValue
-                provinsiToko = custData[i]["provinsi"].stringValue
-                longToko = custData[i]["gps_long"].doubleValue
-                latToko = custData[i]["gps_lat"].doubleValue
-                
-                let toko = Toko(title: namaToko,
-                                locationName: alamatToko,
-                                cityName: kotaToko,
-                                provinsiName: provinsiToko,
-                                coordinate: CLLocationCoordinate2D(latitude: latToko, longitude: longToko))
-                
-                handleMapSearchDelegate?.dropPinZoomIn(toko)
-                dismissViewControllerAnimated(true, completion: nil)
-            }
-        }
+        let toko = Toko(title: filteredDataToko[indexPath.row].title!,
+                        locationName: filteredDataToko[indexPath.row].locationName,
+                        cityName: filteredDataToko[indexPath.row].cityName,
+                        provinsiName: filteredDataToko[indexPath.row].provinsiName,
+                        coordinate: filteredDataToko[indexPath.row].coordinate)
+        
+        handleMapSearchDelegate?.dropPinZoomIn(toko)
+        dismissViewControllerAnimated(true, completion: nil)
     }
-    
-    //func parseAddress(selectedItem)
 }
 
 extension LocationSearchTable: UISearchResultsUpdating {
     func updateSearchResultsForSearchController(searchController: UISearchController) {
         if let searchText = searchController.searchBar.text {
-            filteredData = searchText.isEmpty ? data2 : data2.filter({(dataString: String) -> Bool in
-                return dataString.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil
-            })
+            /*filteredData = searchText.isEmpty ? namaTokoArr : namaTokoArr.filter(
+                {
+                    (dataString: String) -> Bool in
+                    return dataString.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil
+                }
+            )*/
+            filteredDataToko = searchText.isEmpty ? dbTokos : dbTokos.filter(
+                {
+                    (dataString: Toko) -> Bool in
+                    return dataString.title?.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil
+                }
+            )
+            
             tableView.reloadData()
+            //print("namaTokoArr: \(namaTokoArr)")
+            //print(dbTokos)
+            //print(filteredDataToko)
         }
     }
 }
