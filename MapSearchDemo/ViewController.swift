@@ -21,11 +21,15 @@ class ViewController: UIViewController {
     @IBOutlet weak var backButton: UIBarButtonItem!
     
     var searchController: UISearchController!
-    var selectedPin: MKPlacemark? = nil
+    var selectedPin: Toko? = nil
     
     let locationManager = CLLocationManager()
     let searchRadius: Double = 4 //in kilometer
     var tokos: [Toko] = []
+    
+    var userLocation: CLLocationCoordinate2D? = nil
+    var destLat: Double = 0.0
+    var destLong: Double = 0.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -100,6 +104,53 @@ class ViewController: UIViewController {
         
         return d
     }
+    
+    func getDirections() {
+        let sourceLocation = CLLocationCoordinate2D(latitude: userLocation!.latitude, longitude: userLocation!.longitude)
+        let destinationLocation = CLLocationCoordinate2D(latitude: destLat, longitude: destLong)
+        
+        let sourcePlacemark = MKPlacemark(coordinate: sourceLocation, addressDictionary: nil)
+        let destinationPlacemark = MKPlacemark(coordinate: destinationLocation, addressDictionary: nil)
+        
+        let sourceMapItem = MKMapItem(placemark: sourcePlacemark)
+        let destinationMapItem = MKMapItem(placemark: destinationPlacemark)
+        
+        let sourceAnnotation = MKPointAnnotation()
+        if let srcLocation = sourcePlacemark.location {
+            sourceAnnotation.coordinate = srcLocation.coordinate
+        }
+        
+        let destinationAnnotation = MKPointAnnotation()
+        if let destLocation = destinationPlacemark.location {
+            destinationAnnotation.coordinate = destLocation.coordinate
+        }
+        
+        self.mapView.showAnnotations([sourceAnnotation, destinationAnnotation], animated: true)
+        
+        let directionRequest = MKDirectionsRequest()
+        directionRequest.source = sourceMapItem
+        directionRequest.destination = destinationMapItem
+        directionRequest.transportType = .Automobile
+        
+        let directions = MKDirections(request: directionRequest)
+        
+        directions.calculateDirectionsWithCompletionHandler {
+            (response, error) -> Void in
+            
+            guard let response = response else {
+                if let error = error {
+                    print("Error: \(error)")
+                }
+                return
+            }
+            
+            let route = response.routes[0]
+            self.mapView.addOverlay((route.polyline), level: MKOverlayLevel.AboveRoads)
+            
+            let rect = route.polyline.boundingMapRect
+            self.mapView.setRegion(MKCoordinateRegionForMapRect(rect), animated: true)
+        }
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -109,19 +160,39 @@ class ViewController: UIViewController {
 
 extension ViewController: MKMapViewDelegate {
     func mapView(mapView: MKMapView, rendererForOverlay overlay: MKOverlay) -> MKOverlayRenderer {
-        if let overlay = overlay as? MKCircle {
+        /*if let overlay = overlay as? MKCircle {
             let circleRenderer = MKCircleRenderer(circle: overlay)
             circleRenderer.fillColor = UIColor.blueColor().colorWithAlphaComponent(0.1)
             return circleRenderer
         }
         else {
             return MKOverlayRenderer(overlay: overlay)
+        }*/
+        self.mapView.removeOverlay(overlay)
+        let renderer = MKPolylineRenderer(overlay: overlay)
+        renderer.strokeColor = UIColor.blueColor()
+        renderer.lineWidth = 4.0
+        
+        return renderer
+    }
+    
+    func removeDirectionPath() {
+        var overlaysToRemove = [MKOverlay]()
+        let overlays = self.mapView.overlays
+        
+        for overlay in overlays {
+            overlaysToRemove.append(overlay)
         }
+        self.mapView.removeOverlays(overlaysToRemove)
     }
     
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
         if let annotation = annotation as? Toko {
             let identifier = "pin"
+            //get direction var
+            let smallSquare = CGSize(width: 30, height: 30)
+            let button = UIButton(frame: CGRect(origin: CGPointZero, size: smallSquare))
+            //end of getDirection var
             var view: MKPinAnnotationView
             if let dequeuedView = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier) as? MKPinAnnotationView {
                 dequeuedView.annotation = annotation
@@ -132,6 +203,15 @@ extension ViewController: MKMapViewDelegate {
                 view.canShowCallout = true
                 view.calloutOffset = CGPoint(x: -5, y: 5)
                 view.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
+                
+                //get direction
+                button.setBackgroundImage(UIImage(named: "ico_car"), forState: .Normal)
+                button.addTarget(self, action: #selector(ViewController.getDirections), forControlEvents: .TouchUpInside)
+                view.leftCalloutAccessoryView = button
+                
+                destLat = annotation.coordinate.latitude
+                destLong = annotation.coordinate.longitude
+                //end of get direction
             }
             return view
         }
@@ -153,12 +233,13 @@ extension ViewController: CLLocationManagerDelegate {
             let region = MKCoordinateRegion(center: location.coordinate, span: span)
             let circle = MKCircle(centerCoordinate: location.coordinate, radius: searchRadius)
             mapView.setRegion(region, animated: true)
-            mapView.addOverlay(circle)
-            
-            let userLocation: CLLocationCoordinate2D = manager.location!.coordinate
+            //mapView.addOverlay(circle)
             
             let lst = LocationSearchTable()
             lst.getCustData()
+            
+            //let userLocation: CLLocationCoordinate2D = manager.location!.coordinate
+            userLocation = manager.location!.coordinate
             
             for(_, subJson) in lst.custData {
                 if let name: String = subJson["nama_customer"].stringValue {
@@ -167,7 +248,7 @@ extension ViewController: CLLocationManagerDelegate {
                             if let province: String = subJson["provinsi"].stringValue {
                                 if let lat: Double = subJson["gps_lat"].doubleValue {
                                     if let long: Double = subJson["gps_long"].doubleValue {
-                                        if(computeDistance(userLocation.latitude, userLong: userLocation.longitude, storeLat: lat, storeLong: long) < searchRadius) {
+                                        if(computeDistance(userLocation!.latitude, userLong: userLocation!.longitude, storeLat: lat, storeLong: long) < searchRadius) {
                                             let toko = Toko(
                                                 title: name,
                                                 locationName: address,
@@ -196,8 +277,8 @@ extension ViewController: CLLocationManagerDelegate {
 extension ViewController: HandleMapSearch {
     func dropPinZoomIn(toko: Toko) {
     //func dropPinZoomIn(longtitute: String, lattitude: String) {
-        //cahce the pin
-        //selectedPin = placemark
+        //cache the pin
+        selectedPin = toko
         
         //clear existing pins
         //mapView.removeAnnotations(mapView.annotations)

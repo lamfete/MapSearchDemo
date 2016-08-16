@@ -15,15 +15,6 @@ class LocationSearchTable: UITableViewController {
     
     var custData: JSON = []
     var dbTokos : [Toko] = []
-    
-    let data = ["New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX",
-                "Philadelphia, PA", "Phoenix, AZ", "San Diego, CA", "San Antonio, TX",
-                "Dallas, TX", "Detroit, MI", "San Jose, CA", "Indianapolis, IN",
-                "Jacksonville, FL", "San Francisco, CA", "Columbus, OH", "Austin, TX",
-                "Memphis, TN", "Baltimore, MD", "Charlotte, ND", "Fort Worth, TX"]
-    
-    let data2 = ["Logam Jaya, UD", "Terang, TK", "Sinar Family", "Lancar Laksana, TB"]
-    
     var filteredDataToko: [Toko]!
     
     var handleMapSearchDelegate: HandleMapSearch? = nil
